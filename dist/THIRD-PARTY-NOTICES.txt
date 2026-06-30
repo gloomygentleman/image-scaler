@@ -1,0 +1,25 @@
+AI Image Upscaler — 제3자 오픈소스 고지 (Third-Party Notices)
+================================================================
+
+이 프로그램은 다음 오픈소스 라이브러리를 포함합니다. 각 라이브러리는
+아래 명시된 라이선스에 따라 배포됩니다. 모두 영리/비영리 재배포가
+허용되는 퍼미시브 라이선스입니다.
+
+벡터 변환 (이미지 → SVG)
+  - vtracer            MIT OR Apache-2.0   (c) The vtracer authors
+  - visioncortex       MIT OR Apache-2.0   (c) The visioncortex authors
+  - resvg / usvg       Apache-2.0 OR MIT   (c) the resvg authors
+  - tiny-skia          BSD-3-Clause        (c) Yevhenii Reizner; portions (c) Google (Skia)
+
+업스케일 / 이미지 처리 / GUI
+  - image              MIT OR Apache-2.0
+  - tract-onnx         MIT OR Apache-2.0
+  - eframe / egui      MIT OR Apache-2.0
+  - rayon, ureq, rfd, anyhow 등 기타 의존성  MIT OR Apache-2.0
+
+내장 글꼴
+  - 나눔고딕 (NanumGothic)   SIL Open Font License 1.1  (OFL.txt 참조)
+
+각 라이선스의 전문은 해당 프로젝트 저장소 및 https://crates.io 에서
+확인할 수 있습니다. 본 고지는 MIT/BSD/Apache 라이선스의 저작권 및 라이선스
+고지 요건을 충족하기 위해 포함되었습니다.

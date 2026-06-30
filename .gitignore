@@ -1,0 +1,12 @@
+/target
+**/*.rs.bk
+*.onnx
+/models
+/samples
+__pycache__/
+
+# Built distribution artifacts — released via GitHub Releases, not committed.
+# (The text templates under dist/ are kept tracked.)
+/dist/*.zip
+/dist/*.tar.gz
+/dist/AI-Image-Upscaler-*/

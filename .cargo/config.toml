@@ -1,0 +1,11 @@
+# Cross-compilation to Windows (x86_64) from macOS/Linux.
+#
+# Uses the mingw-w64 toolchain (`brew install mingw-w64`). The static link args
+# fold the mingw runtime (libgcc / libstdc++ / winpthread) into the .exe so the
+# distributed binary does not need any extra mingw DLLs alongside it.
+[target.x86_64-pc-windows-gnu]
+linker = "x86_64-w64-mingw32-gcc"
+ar = "x86_64-w64-mingw32-ar"
+rustflags = [
+    "-C", "link-args=-static -static-libgcc -static-libstdc++",
+]
