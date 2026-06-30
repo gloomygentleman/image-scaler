@@ -10,3 +10,7 @@ __pycache__/
 /dist/*.zip
 /dist/*.tar.gz
 /dist/AI-Image-Upscaler-*/
+
+# Bundled GPU runtime (onnxruntime / DirectML) for the GPU editions.
+# Large binaries fetched by scripts/fetch_onnxruntime.sh — not committed.
+/vendor/

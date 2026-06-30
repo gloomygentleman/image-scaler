@@ -13,13 +13,22 @@ ONNX 초해상도(Super-Resolution) 모델로 이미지를 손상 없이 업스�
 미리 빌드된 실행 파일은 [Releases](https://github.com/gloomygentleman/image-scaler/releases/latest)
 에서 받을 수 있습니다 (모델·문서 포함, 압축 해제 후 바로 실행).
 
-- **Windows (x64)**: `AI-Image-Upscaler-vX.Y.Z-windows-x64.zip`
-- **macOS (Apple Silicon)**: `AI-Image-Upscaler-vX.Y.Z-macos-arm64.zip`
+각 OS마다 **CPU 전용판**과 **GPU 가속판**이 있습니다. GPU 가속판은 ONNX Runtime
+런타임을 함께 동봉해, 압축을 풀고 실행하면 **별도 설치 없이 바로 GPU로 동작**합니다
+(GPU를 못 쓰는 환경에서는 자동으로 CPU로 전환). 처음이라면 CPU 전용판이 가장 가볍고
+간단합니다.
 
-> 두 빌드 모두 서명/공증이 적용되지 않아 첫 실행 시 OS 보안 경고가 나타날 수 있습니다.
+| OS | CPU 전용판 (가벼움, 단일 실행 파일) | GPU 가속판 (런타임 동봉, 받자마자 GPU) |
+|----|----|----|
+| **Windows (x64)** | `AI-Image-Upscaler-vX.Y.Z-windows-x64.zip` | `AI-Image-Upscaler-vX.Y.Z-windows-x64-gpu.zip` (DirectML) |
+| **macOS (Apple Silicon)** | `AI-Image-Upscaler-vX.Y.Z-macos-arm64.zip` | `AI-Image-Upscaler-vX.Y.Z-macos-arm64-gpu.zip` (CoreML) |
+
+> 모든 빌드는 서명/공증이 적용되지 않아 첫 실행 시 OS 보안 경고가 나타날 수 있습니다.
 > Windows는 "추가 정보 → 실행", macOS는 동봉한 `install-model.command` 실행(또는
-> `xattr -dr com.apple.quarantine ./image-upscaler`)으로 진행하세요. 자세한 내용은 각
-> 패키지의 `사용법.txt` 참고.
+> `xattr -dr com.apple.quarantine .`)으로 진행하세요. GPU 가속판은 동봉된 런타임
+> (macOS `libonnxruntime.dylib` / Windows `onnxruntime.dll`·`DirectML.dll` 등)을
+> **실행 파일과 같은 폴더에** 두어야 GPU가 동작합니다. 자세한 내용은 각 패키지의
+> `사용법.txt` 참고.
 
 ## 특징
 
@@ -73,16 +82,26 @@ cargo run --release --features gpu   # GPU 가속 빌드로 실행 (onnxruntime 
 - ONNX Runtime 라이브러리는 **런타임에 동적 로드**(`load-dynamic`)합니다. 즉 GPU 빌드는
   더 이상 "단일 파일"이 아니며, onnxruntime 공유 라이브러리가 필요합니다(파이썬은 여전히 불필요).
 
-준비 방법:
+**가장 쉬운 방법: GPU 가속판 다운로드.** 위 [다운로드](#다운로드)의 GPU 가속판은
+onnxruntime 런타임을 실행 파일과 함께 동봉해, 압축만 풀면 바로 GPU로 동작합니다
+(`ORT_DYLIB_PATH` 설정 불필요). 아래는 **직접 소스에서 빌드**할 때의 준비 방법입니다.
 
-1. ort `2.0.0-rc.10`에 맞는 **onnxruntime 1.22.x**를 받습니다
-   (예: <https://github.com/microsoft/onnxruntime/releases> 의
-   `onnxruntime-osx-arm64-1.22.0.tgz` / Windows는 `onnxruntime-win-x64-1.22.0.zip`).
-2. 라이브러리 경로를 지정합니다:
+직접 빌드 시 준비 방법:
+
+1. 런타임을 받아 `vendor/` 에 채웁니다:
    ```bash
+   ./scripts/fetch_onnxruntime.sh   # onnxruntime 1.22.x + DirectML 1.15.x 다운로드
+   ```
+   (수동으로 받으려면 ort `2.0.0-rc.10`에 맞는 **onnxruntime 1.22.x**를
+   <https://github.com/microsoft/onnxruntime/releases> 등에서 받으면 됩니다.)
+2. GPU 기능으로 빌드하고, 런타임 라이브러리를 실행 파일과 같은 폴더에 두거나
+   경로를 지정합니다:
+   ```bash
+   cargo build --release --features gpu
    export ORT_DYLIB_PATH=/path/to/libonnxruntime.dylib   # Windows는 onnxruntime.dll
    ```
-   (또는 실행 파일과 같은 폴더에 두면 됩니다.)
+   (`scripts/package_mac_gpu.sh` / `scripts/package_win_gpu.sh` 는 빌드 결과와
+   `vendor/` 의 런타임을 묶어 배포용 zip을 만듭니다.)
 3. 앱에서 **④ 모델 → 고급 설정 → "GPU 가속 사용"** 체크, 또는 CLI에 `--gpu`.
 
 동작/주의:
@@ -172,9 +191,12 @@ src/
     ├── pipeline.rs     # 로드→업스케일→목표크기 재샘플→저장 + 알파 보존
     └── download.rs     # 모델 자동 다운로드/캐시 + 테스트
 scripts/
-├── make_test_model.py  # (개발용) 검증 모델/샘플 생성 + 결과 검증
-├── package_win.sh      # Windows 배포 zip 생성 (cross-build 후)
-└── package_mac.sh      # macOS(arm64) 배포 zip 생성
+├── make_test_model.py    # (개발용) 검증 모델/샘플 생성 + 결과 검증
+├── fetch_onnxruntime.sh  # GPU 동봉용 onnxruntime/DirectML 런타임 다운로드 → vendor/
+├── package_win.sh        # Windows CPU 배포 zip 생성 (cross-build 후)
+├── package_mac.sh        # macOS(arm64) CPU 배포 zip 생성
+├── package_win_gpu.sh    # Windows GPU 배포 zip 생성 (런타임 동봉)
+└── package_mac_gpu.sh    # macOS(arm64) GPU 배포 zip 생성 (런타임 동봉)
 ```
 
 ## 폰트 라이선스

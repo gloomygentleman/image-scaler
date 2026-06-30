@@ -1,8 +1,8 @@
 [package]
 name = "image-upscaler"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-description = "CPU-only AI image upscaler (super-resolution) with a desktop GUI, written in Rust"
+description = "AI image upscaler (super-resolution) with a desktop GUI, written in Rust. CPU by default; optional GPU acceleration (ONNX Runtime) via the `gpu` feature."
 
 [dependencies]
 # GUI (egui / eframe)

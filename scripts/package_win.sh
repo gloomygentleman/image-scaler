@@ -4,7 +4,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-EXE="$ROOT/target/x86_64-pc-windows-gnu/release/image-upscaler.exe"
+EXE="${EXE:-$ROOT/target/x86_64-pc-windows-gnu/release/image-upscaler.exe}"
 MODEL="$HOME/.cache/image-upscaler/models/realesrgan-x4plus.onnx"
 VER=$(grep -m1 '^version' "$ROOT/Cargo.toml" | sed -E 's/.*"([^"]+)".*/\1/')
 PKG="AI-Image-Upscaler-v${VER}-windows-x64"
